@@ -211,7 +211,7 @@
                 <!-- Lijeva kolona -->
                 <div>
                     <div class="input-group">
-                        <label class="label">Godišnji prihod tvrtke</label>
+                        <label class="label">Godišnji prihod tvrtke (€)</label>
                         <input type="number" id="prihod">
                     </div>
 
@@ -221,8 +221,13 @@
                     </div>
 
                     <div class="input-group">
+                        <label class="label">Mjesečna bruto plaća (€)</label>
+                        <input type="number" id="placa">
+                    </div>
+
+                    <div class="input-group">
                         <label class="label">
-                            Fiksni troškovi
+                            Fiksni troškovi (€)
                             <div class="tooltip">
                                 <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="12" cy="12" r="10"></circle>
@@ -237,7 +242,7 @@
 
                     <div class="input-group">
                         <label class="label">
-                            Varijabilni troškovi
+                            Varijabilni troškovi (€)
                             <div class="tooltip">
                                 <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="12" cy="12" r="10"></circle>
@@ -256,11 +261,9 @@
                     <div class="input-group">
                         <label class="label">Odabir godine</label>
                         <select id="godina">
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
-                            <option value="2026">2026</option>
-                            <option value="2027">2027</option>
-                            <option value="2028">2028</option>
+                            <option value="2024">2023</option>
+                            <option value="2025">2024</option>
+                            <option value="2026">2025</option>
                         </select>
                     </div>
 
@@ -302,15 +305,15 @@
                 <div class="results-grid">
                     <div class="result-card">
                         <p class="result-label">Točka pokrića troškova po satu</p>
-                        <p id="tockaPokrica" class="result-value">0.00 kn</p>
+                        <p id="tockaPokrica" class="result-value">0.00 €</p>
                     </div>
                     <div class="result-card">
                         <p class="result-label">Cijena sata s maržom</p>
-                        <p id="cijenaSMarzom" class="result-value">0.00 kn</p>
+                        <p id="cijenaSMarzom" class="result-value">0.00 €</p>
                     </div>
                     <div class="result-card">
-                        <p class="result-label">Cijena savjetodavne usluge po satu</p>
-                        <p id="cijenaSavjetovanja" class="result-value">0.00 kn</p>
+                        <p class="result-label">Cijena s ciljanom profitnom stopom</p>
+                        <p id="cijenaSavjetovanja" class="result-value">0.00 €</p>
                     </div>
                 </div>
             </div>
@@ -323,11 +326,6 @@
     </div>
 
     <script>
-        const RADNI_DANI = 251;
-        const DNEVNI_SATI = 8;
-        const GODISNJI_ODMOR = 20;
-        const BLAGDANI = 11;
-        const OSTALA_ODSUSTVA = 10;
 
         function calculateResults() {
             const prihod = Number(document.getElementById('prihod').value) || 0;
@@ -336,20 +334,19 @@
             const varijabilniTroskovi = Number(document.getElementById('varijabilniTroskovi').value) || 0;
             const marza = Number(document.getElementById('marza').value) || 0;
             const profitnaStopa = Number(document.getElementById('profitnaStopa').value) || 0;
+            const godina = Number(document.getElementById("godina").value)
+            const brutoPlaca = Number(document.getElementById("placa").value) || 0;
 
-            const ukupniTroskovi = fiksniTroskovi + varijabilniTroskovi;
-            const efektivniRadniDani = RADNI_DANI - GODISNJI_ODMOR - BLAGDANI - OSTALA_ODSUSTVA;
-            const naplativiSatiGodisnje = efektivniRadniDani * DNEVNI_SATI * brojZaposlenih;
-
-            if (naplativiSatiGodisnje === 0) return;
+            const ukupniTroskovi = fiksniTroskovi + varijabilniTroskovi + brutoPlaca * brojZaposlenih * 12;
+            const naplativiSatiGodisnje = [1848,1848,1840][godina-2023] * brojZaposlenih
 
             const tockaPokrica = ukupniTroskovi / naplativiSatiGodisnje;
             const cijenaSMarzom = tockaPokrica * (1 + marza / 100);
-            const cijenaSavjetovanja = cijenaSMarzom * (1 + profitnaStopa / 100);
+            const cijenaSavjetovanja = tockaPokrica / (1 - profitnaStopa / 100);
 
-            document.getElementById('tockaPokrica').textContent = `${tockaPokrica.toFixed(2)} kn`;
-            document.getElementById('cijenaSMarzom').textContent = `${cijenaSMarzom.toFixed(2)} kn`;
-            document.getElementById('cijenaSavjetovanja').textContent = `${cijenaSavjetovanja.toFixed(2)} kn`;
+            document.getElementById('tockaPokrica').textContent = `${tockaPokrica.toFixed(2)} €`;
+            document.getElementById('cijenaSMarzom').textContent = `${cijenaSMarzom.toFixed(2)} €`;
+            document.getElementById('cijenaSavjetovanja').textContent = `${cijenaSavjetovanja.toFixed(2)} €`;
         }
 
         // Dodaj event listenere na sva input polja
